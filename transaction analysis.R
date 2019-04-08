@@ -1,4 +1,5 @@
-wf<-read.csv("/Users/heyunyu/Downloads/wf.csv")
+## per transaction id is per customer id
+wf<-read.csv("/Users/heyunyu/Downloads/Whole_Foods_Transaction_Data.csv")
 View(wf)
 list<-unique(wf$transaction_id)
 re<-c()
@@ -8,9 +9,9 @@ for (i in 1:length(list)){
   aor[i]<-length(pos)
   re[i]<-sum(wf$reordered[pos])
 } 
-rate<-re/aor   ##acquire the percentage of reorder for per customer
+rate<-re/aor  ##acquire the reorder rate per customer
 count(rate==1)
-ratio_re<-1-sum(re==0)/length(re)##重复购买的比例
+ratio_re<-1-sum(re==0)/length(re) ## percentage of repeat purchases
 re
 
 aor ##product number count for per customer
@@ -43,7 +44,7 @@ for (i in 1:length(list)){
   cate[i]<-length(unique(wf$department[pos1]))
 }
 ratio_var<-sum(cate>5)/length(cate)
-ratio_var ##购买三个种类以上的比例
+ratio_var ## percentage of purchases with more than three departments
 
 unique(wf$product_name)
 
@@ -51,7 +52,7 @@ cate_matrix<-matrix(0,nrow=length(list),ncol = length(unique(wf$department_id)))
 for (i in 1:length(list)){
   pos<-which(wf$transaction_id==list[i])
   for(j in 1:length(unique(wf$department_id))){
-   ##i是第i行第i个顾客，j是第j个商品种类
+   ## i is the ith customer in the ith row, and j is the jth item
     cate_matrix[i,j]=sum(wf$department_id[pos]==j)>0
   }
 
@@ -68,7 +69,7 @@ pos2<-order(r)
 pos22<-pos2[-(421:441)]
 r[pos2]
 
-##p显著的条件下——相关系数排名
+## correlation coefficient ranking with significant p value
 de_co<-c()
 cor_col1<-c()
 cor_row1<-c()
@@ -99,9 +100,7 @@ write.table(table,"fff.csv",sep=",",row.names=FALSE)
 output$n
 max(r)
 
-
-
-
+##
 r[r==1]<-0
 r1<-r
 which(r==0)
@@ -118,7 +117,6 @@ for (i in 1:length(list1)){
 }
 list1
 
-
 pro_name<-c()
 pro_name<-as.string(pro_name)
 list1<-unique(wf$product_name)
@@ -127,15 +125,12 @@ for (i in 1:2){
    list1[i]
 }
 
-
-
 sum_prob<-c()
 list1<-unique(wf$product_name)
 for (i in 1:length(list1)){
   rank_pro<-which(wf$product_name==list1[i])
   sum_prob[i]<-length(rank_pro)
 }
-
 
 wf$department<-as.character(wf$department)
 list1<-as.character(list1)
@@ -171,8 +166,6 @@ for (i in 1:length(de)){
 }
 
 new_or<-ifelse(wf$reordered==0,1,2)
-
-
 
 
 sum_dep<-c()
@@ -228,11 +221,11 @@ for (i in 1:length(list1)){
   ret[i]<-sum(wf$reordered[pos])/sale[i]
 
 }
-##归一化
+##normalization
 sale<-(sale-min(sale))/(max(sale)-min(sale))
 ret<-(ret-min(ret))/(max(ret)-min(ret))
 
-sale<-scale(sale,center = TRUE,scale=TRUE) ##标准化
+sale<-scale(sale,center = TRUE,scale=TRUE) ##standardized
 ret<-scale(ret,center = TRUE,scale=TRUE)
 subset1<-cbind(list1,sale,ret)
 write.table(subset1,"subset1.csv",sep=",",row.names = FALSE)
